@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
+import 'dart:io';
 
 class StorageData {
   final double total;
@@ -149,5 +150,14 @@ class ESP32Service {
   static Future<void> triggerRFID() async {
     final response = await http.get(Uri.parse('$baseUrl/rfid'));
     print("RFID Triggered: ${response.body}");
+  }
+   static Future<void> uploadFileFromPath(String filePath) async {
+    final file = File(filePath);
+    if (!file.existsSync()) {
+      throw Exception("File does not exist: $filePath");
+    }
+    final bytes = await file.readAsBytes();
+    final filename = file.path.split("/").last;
+    await uploadFile(filename, bytes);
   }
 }
