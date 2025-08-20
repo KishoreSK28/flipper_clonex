@@ -113,7 +113,16 @@ void goBackMenu()
     case IR_SEND:
         currentMenu = IR_MENU;
         break;
+    case STORAGE_SERVER:
+        currentMenu = MAIN_MENU;
+        break;
+
+    case APP_CONTROL:
+        currentMenu = MAIN_MENU;
+        break;
+
     default:
+        currentMenu = MAIN_MENU;
         break;
     }
     menuIndex = 0;
@@ -381,6 +390,7 @@ void updateUI()
 
             if (menuIndex == 0) // Scan normal card
             {
+                RFID_Init();
                 currentMenu = RFID_SCAN;
                 if (RFID_CheckForCard())
                 {
@@ -480,6 +490,7 @@ void updateUI()
 
     if (digitalRead(BUTTON_BACK) == LOW)
     {
+        // Wi-Fi stop actions
         if (currentMenu == DEAUTH_MENU)
         {
             Serial2.println("STOP_DEAUTH");
@@ -491,7 +502,23 @@ void updateUI()
             Serial.println("[ESP32] Sent: STOP_BEACON");
         }
 
-        goBackMenu();
+        // Optional: RFID actions on back
+        else if (currentMenu == RFID_SCAN || currentMenu == RFID_READ || currentMenu == RFID_WRITE ||
+                 currentMenu == RFID_WRITE_MAGIC || currentMenu == RFID_COPY_TO_MAGIC_CARD)
+        {
+            Serial.println("[RFID] Returning to RFID menu...");
+            // You can add extra cleanup if needed
+        }
+
+        // Optional: IR actions on back
+        else if (currentMenu == IR_RECEIVE || currentMenu == IR_REPLAY || currentMenu == IR_SEND)
+        {
+            Serial.println("[IR] Returning to IR menu...");
+            // You can stop IR receiver or transmitter if needed
+            // e.g., IR_StopReceiver() or IR_StopTransmitter() if implemented
+        }
+
+        goBackMenu(); // Handles all menu transitions
         changed = true;
         delay(200);
     }
@@ -558,6 +585,58 @@ void displayMenu()
                 u8g2.print("  ");
             u8g2.print(bluetoothMenu[i]);
         }
+    }
+    else if (currentMenu == IR_MENU)
+    {
+        u8g2.print("IR Attacks:");
+        for (int i = 0; i < 3; i++)
+        {
+            u8g2.setCursor(10, 20 + i * 10);
+
+            if (i == menuIndex)
+                u8g2.print("> ");
+            else
+                u8g2.print("  ");
+            u8g2.print(irmenu[i]);
+        }
+    }
+    else if (currentMenu == RFID_MENU)
+    {
+        u8g2.print("RFID Attacks:");
+        for (int i = 0; i < 5; i++)
+        {
+            u8g2.setCursor(10, 20 + i * 10);
+
+            if (i == menuIndex)
+                u8g2.print("> ");
+            else
+                u8g2.print("  ");
+            u8g2.print(rfidMenu[i]);
+        }
+    }
+    else if (currentMenu == STORAGE_SERVER)
+    {
+        u8g2.setCursor(0, 10);
+        u8g2.print("Storage Server");
+        u8g2.setCursor(0, 20);
+        u8g2.print("SSID: ESP32_AP");
+        u8g2.setCursor(0, 30);
+        u8g2.print("Pass: 12345678");
+        u8g2.setCursor(0, 40);
+        u8g2.print("IP: ");
+        u8g2.print(WiFi.softAPIP());
+    }
+    else if (currentMenu == APP_CONTROL)
+    {
+        u8g2.setCursor(0, 10);
+        u8g2.print("APP Control");
+        u8g2.setCursor(0, 20);
+        u8g2.print("SSID: Flipper Clonex");
+        u8g2.setCursor(0, 30);
+        u8g2.print("Pass: 123123123");
+        u8g2.setCursor(0, 40);
+        u8g2.print("IP: ");
+        u8g2.print(WiFi.softAPIP());
     }
     else if (currentMenu == BLE_SCANNER)
     {
