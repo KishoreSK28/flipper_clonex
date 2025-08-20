@@ -358,6 +358,7 @@ void updateUI()
                 {
                     Serial.println("No IR signal received!");
                 }
+                currentMenu = IR_RECEIVE;
             }
             else if (menuIndex == 1)
             {
@@ -372,6 +373,7 @@ void updateUI()
                 {
                     Serial.println("No stored signals to replay!");
                 }
+                currentMenu = IR_REPLAY;
             }
             else if (menuIndex == 2)
             {
@@ -382,6 +384,7 @@ void updateUI()
 
                 IR_Send(testData, bits);
                 Serial.println("Custom IR signal sent!");
+                currentMenu = IR_SEND;
             }
         }
         else if (currentMenu == RFID_MENU)
@@ -873,6 +876,38 @@ void displayMenu()
             u8g2.print(lastScannedUID);
         }
     }
+    else if (currentMenu == IR_RECEIVE)
+    {
+        u8g2.setCursor(0, 10);
+        u8g2.print("IR Receive:");
+        u8g2.setCursor(0, 25);
+        u8g2.print("Waiting for signal...");
+    }
+
+    else if (currentMenu == IR_REPLAY)
+    {
+        u8g2.setCursor(0, 10);
+        u8g2.print("IR Replay:");
+        if (!irSignalList.empty())
+        {
+            u8g2.setCursor(0, 25);
+            u8g2.print("Last signal ready!");
+        }
+        else
+        {
+            u8g2.setCursor(0, 25);
+            u8g2.print("No stored signal");
+        }
+    }
+
+    else if (currentMenu == IR_SEND)
+    {
+        u8g2.setCursor(0, 10);
+        u8g2.print("IR Send:");
+        u8g2.setCursor(0, 25);
+        u8g2.print("Ready to send custom code");
+    }
+
     else if (currentMenu == STORAGE_SERVER)
     {
         u8g2.setCursor(0, 10);
