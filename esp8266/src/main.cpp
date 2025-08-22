@@ -3,6 +3,8 @@
 #include <user_interface.h>
 #include "attack/deauth.h"
 #include "attack/beacon.h"
+#include <gen/temp.h>
+
 
 // Definition of RxControl struct as required by ESP8266 SDK
 struct RxControl
@@ -82,6 +84,7 @@ void snifferCallback(uint8_t *buf, uint16_t len)
 void setup()
 {
     Serial.begin(9600);
+    initTemp();
     delay(1000);
 
     WiFi.mode(WIFI_OFF); // Ensure WiFi stack is reset
@@ -154,6 +157,6 @@ void loop()
             Serial.println("[ESP8266] Unknown command");
         }
     }
-
+    controlFan();
     delay(100);
 }
