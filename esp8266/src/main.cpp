@@ -4,7 +4,7 @@
 #include "attack/deauth.h"
 #include "attack/beacon.h"
 #include <gen/temp.h>
-
+#include <gen/loc.h>
 
 // Definition of RxControl struct as required by ESP8266 SDK
 struct RxControl
@@ -96,6 +96,7 @@ void setup()
     wifi_promiscuous_enable(1);                  // Enable monitor mode
 
     Serial.println("[ESP8266] Monitor mode enabled. Sniffing...");
+    initGPS();
 }
 
 void loop()
@@ -142,7 +143,8 @@ void loop()
             stopDeauth();
             Serial.println("[ESP8266] Deauth stopped");
         }
-        else if(input.startsWith("START_BEACON_FLOOD")){
+        else if (input.startsWith("START_BEACON_FLOOD"))
+        {
             // startbeaconflood();
             sendsinglebeacon();
         }
@@ -150,13 +152,21 @@ void loop()
         {
             stopbeaconflood();
         }
-        
 
         else
         {
             Serial.println("[ESP8266] Unknown command");
         }
+        float lat, lng;
+        if (readGPS(lat, lng))
+        {
+            Serial.printf("[GPS] Location: %.6f, %.6f\n", lat, lng);
+        }
+        else
+        {
+            Serial.println("[GPS] No location data");
+        }
+        controlFan();
+        delay(100);
     }
-    controlFan();
-    delay(100);
 }

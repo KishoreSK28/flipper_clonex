@@ -4,6 +4,8 @@ import '../ui/settings_screen.dart';
 import '../ui/storage_screen.dart';
 import '../ui/wifi_screen.dart';
 import '../ui/bluetooth_screen.dart';
+import '../ui/ir_screen.dart';
+import '../ui/rfid_screen.dart ';
 // Add other screens here when needed
 
 class AppRoutes {
@@ -28,7 +30,10 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => WifiScreen());
       case AppRoutes.bluetooth:
         return MaterialPageRoute(builder: (_) => BluetoothScreen());
-
+      case AppRoutes.ir:
+        return MaterialPageRoute(builder: (_) => const IRScreen());
+      case AppRoutes.rfid:
+        return MaterialPageRoute(builder: (_) => const RFIDScreen());
       default:
         return MaterialPageRoute(
           builder: (_) =>

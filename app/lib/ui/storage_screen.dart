@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/esp32_service.dart';
 import 'package:open_filex/open_filex.dart';
-import '../services/esp32_upload_extension.dart';
 import 'package:file_picker/file_picker.dart';
 
 class StorageScreen extends StatefulWidget {

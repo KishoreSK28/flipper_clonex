@@ -6,7 +6,7 @@ void initEvilTwin();
 void startEvilTwin();
 void processEvilTwinDNS();
 void handleDNS();
-
+void handleGetCredentials();
 // Declare these as extern
 
 extern String ssid;
