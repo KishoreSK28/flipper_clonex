@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/esp32_service.dart';
 
 class RFIDScreen extends StatefulWidget {
   const RFIDScreen({super.key});
@@ -12,12 +13,24 @@ class _RFIDScreenState extends State<RFIDScreen> {
   String lastTag = "None";
   bool isWriting = false; // To show a loading indicator
 
-  void _scanTag() {
+void _scanTag() async {
+  setState(() {
+    status = "Scanning...";
+  });
+
+  try {
+    final result = await ESP32Service.scanRFID();
     setState(() {
-      lastTag = "UID: 0x93 0xAB 0x7C 0x11"; // sample demo
-      status = "Tag Scanned";
+      lastTag = "UID: ${result.uid}\nBlock1: ${result.block1}";
+      status = "Tag Scanned Successfully ✅";
+    });
+  } catch (e) {
+    setState(() {
+      status = "Scan Failed ❌";
+      lastTag = "unable to read tag.";
     });
   }
+}
 
   void _writeTag() {
     setState(() {
@@ -125,7 +138,7 @@ class _RFIDScreenState extends State<RFIDScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               if (isLoading)
-                const CircularProgressIndicator(color: Colors.white)
+                const CircularProgressIndicator(color: Colors.cyanAccent)
               else
                 Icon(icon, color: isEnabled ? iconColor : Colors.grey.shade600, size: 40),
               const SizedBox(height: 12),

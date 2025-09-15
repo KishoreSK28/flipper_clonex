@@ -80,12 +80,6 @@ class _HomeScreenState extends State<HomeScreen>
   }
   // In HomeScreen.dart
 
-  // In HomeScreen.dart
-
-  // In HomeScreen.dart
-
-  // In HomeScreen.dart
-
   Widget _buildHeader() {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center, // Align items vertically

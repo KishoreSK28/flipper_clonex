@@ -12,6 +12,7 @@ class StorageScreen extends StatefulWidget {
 
 class _StorageScreenState extends State<StorageScreen> {
   List<Map<String, dynamic>> files = [];
+  bool isLoading = false; // ✅ Added state variable
 
   @override
   void initState() {
@@ -20,14 +21,26 @@ class _StorageScreenState extends State<StorageScreen> {
   }
 
   Future<void> loadFiles() async {
+    setState(() {
+      isLoading = true;
+      files = [];
+    });
+
     try {
       final fetchedFiles = await ESP32Service.getFileList();
+      await Future.delayed(const Duration(seconds: 2)); // Simulate delay
       setState(() {
         files = fetchedFiles;
       });
     } catch (e) {
-      // Handle error
       print("Error fetching files: $e");
+      setState(() {
+        files = [];
+      });
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
@@ -81,6 +94,7 @@ class _StorageScreenState extends State<StorageScreen> {
         );
       },
     );
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("DriveX"),
@@ -99,9 +113,34 @@ class _StorageScreenState extends State<StorageScreen> {
         ],
       ),
       backgroundColor: Colors.black,
-      body: files.isEmpty
+      body: isLoading
           ? const Center(
               child: CircularProgressIndicator(color: Colors.cyanAccent),
+            )
+          : files.isEmpty
+          ? Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: GestureDetector(
+                  onTap: loadFiles,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      Icon(
+                        Icons.info_outline,
+                        color: Colors.cyanAccent,
+                        size: 48,
+                      ),
+                      SizedBox(height: 12),
+                      Text(
+                        "No files found.\nTap to retry.",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.white70, fontSize: 16),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             )
           : Padding(padding: const EdgeInsets.all(12.0), child: gridView),
       floatingActionButton: FloatingActionButton(
@@ -110,12 +149,19 @@ class _StorageScreenState extends State<StorageScreen> {
             final result = await FilePicker.platform.pickFiles();
             if (result != null && result.files.isNotEmpty) {
               final filePath = result.files.single.path!;
-              // Call the extension static method
               await ESP32Service.uploadFileFromPath(filePath);
               await loadFiles(); // Refresh grid after upload
             }
           } catch (e) {
             print("Error uploading file: $e");
+
+            // Show error message in the app
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text("Error uploading file: $e"),
+                backgroundColor: Colors.redAccent,
+              ),
+            );
           }
         },
         backgroundColor: Colors.cyanAccent,
